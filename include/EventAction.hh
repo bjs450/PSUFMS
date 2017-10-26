@@ -63,6 +63,7 @@ class EventAction : public G4UserEventAction
 
 //    TH1D *GenPhotonZ, *DetectPhotonZ;
     TH1D *EdepZL, *EdepZS;
+    TH1D *cosL, *cosS;
 
     PostSim pss;
 
@@ -144,9 +145,11 @@ class EventAction : public G4UserEventAction
     TF2 *pNormFuncL, *pNormFuncS;
     TFile *pEShapeFile;
     TH1D *pParamL[3], *pParamS[3];
-    Int_t CreateNormFunctions(Double_t normEtaL_=2.9, Double_t normEtaS_=3.7);
+//    Int_t CreateNormFunctions(Double_t normEtaL_=2.9, Double_t normEtaS_=3.7);
+    Int_t CreateNormFunctions(Double_t normEtaL_=2.9, Double_t normEtaS_=3.5);
 //    Bool_t DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Double_t cosThPhoton_, Bool_t isLarge_, Double_t ratDayChange_, Double_t nDays_);
-    Bool_t DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Double_t cosThPhoton_, Bool_t isLarge_, Double_t ratDayChange_, Double_t nDays_, Bool_t useWavelength_=false, Double_t wavelength_=465);
+//    Bool_t DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Double_t cosThPhoton_, Bool_t isLarge_, Double_t ratDayChange_, Double_t nDays_, Bool_t useWavelength_=false, Double_t wavelength_=465);
+    Bool_t DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Double_t cosThPhoton_, Bool_t isLarge_, Double_t ratDayChange_, Double_t nDays_, Bool_t useWavelength_=false, Double_t wavelength_=465, Bool_t useAvg_=true);
 
 //    Int_t radWhichID[40][100]; //BS NOTE. I origionally tried to make this a longer array and then only choose the first nDaysSimulated, however this fails with the multi-dimensional array branches. Instead, it would grab the first 100 elements from [0][0-99] and then get the others
 //

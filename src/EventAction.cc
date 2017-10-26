@@ -44,6 +44,9 @@ EventAction::EventAction(FILE* fp0,TFile* tf0, TTree* geotr, Int_t eventNum)
   memset(row,0,sizeof(row));
   memset(col,0,sizeof(col));
 
+//  EventAction::cosL = new TH1D("cosL", "Photon Cosine that reach photocathode, Large", 50, -1., 1.);
+//   EventAction::cosS = new TH1D("cosS", "Photon Cosine that reach photocathode, Small", 50, -1., 1.);
+
   //  EventAction::PhotonWavelengthL = new TH1D("PhotonWavelengthL", "Photon Wavelength that reach photocathode, Large", 500, 300, 800);
   // EventAction::PhotonWavelengthS = new TH1D("PhotonWavelengthS", "Photon Wavelength that reach photocathode, Small", 500, 300, 800);
   //EventAction::OrigPhotonWavelengthL = new TH1D("OrigPhotonWavelengthL", "Origional Photon Wavelength that reach photocathode, Large", 500, 300, 800);
@@ -82,43 +85,47 @@ EventAction::EventAction(FILE* fp0,TFile* tf0, TTree* geotr, Int_t eventNum)
   testtree->Branch("EnergyModVec.",&EnergyModVec);
   testtree->Branch("RadDamageVec.",&RadDamageVec);
 
+  testtree->Branch("All1Orig.",&CellGeo1Vec);
+  testtree->Branch("All1Bit.",&CellGeo2Vec);
+  testtree->Branch("All1SubAndBit.",&CellGeo3Vec);
+  testtree->Branch("D142Orig.",&CellGeo4Vec);
+  testtree->Branch("D142SubAndBit.",&CellGeo5Vec);
+  /*
   testtree->Branch("All1Gain.",&CellGeo1Vec);
-  //  testtree->Branch("10PercentVar",&CellGeo2Vec);
   testtree->Branch("Day142Var.",&CellGeo2Vec);
-  //  testtree->Branch("20PercentVar",&CellGeo3Vec);
-  //  testtree->Branch("30PercentVar",&CellGeo4Vec);
-
   testtree->Branch("D142Plus10.",&CellGeo3Vec);
   testtree->Branch("D142PlusGaus.",&CellGeo4Vec);
+  testtree->Branch("D142PlusGaus.",&CellGeo5Vec);
+  */
 
-  /*
-  testtree->Branch("myvectest",&myvectest);
-  testtree->Branch("energyQT",&energyQTvec);
-  testtree->Branch("EnergyModVec",&EnergyModVec);
-  testtree->Branch("RadDamageVec",&RadDamageVec);
-
-  testtree->Branch("All1Gain",&CellGeo1Vec);
   //  testtree->Branch("10PercentVar",&CellGeo2Vec);
-  testtree->Branch("Day142Var",&CellGeo2Vec);
   //  testtree->Branch("20PercentVar",&CellGeo3Vec);
   //  testtree->Branch("30PercentVar",&CellGeo4Vec);
 
-  testtree->Branch("D142Plus10",&CellGeo3Vec);
-  testtree->Branch("D142PlusGaus",&CellGeo4Vec);
-  */
+  testtree->Branch("TriggersAll1Orig",pss.Trig1,"TrigersAll1[9]/I");
+  testtree->Branch("TriggersAll1Bit",pss.Trig2,"TriggersAll1Bit[9]/I");
 
+  testtree->Branch("TriggersAll1SubAndBit",pss.Trig3,"TriggersAll1SubAndBit[9]/I");
+  testtree->Branch("TriggersD142Orig",pss.Trig4,"TriggersVar142Orig[9]/I");
+
+  testtree->Branch("TriggersD142SubAndBit",pss.Trig5,"TriggersD142SubAndBit[9]/I");
+
+  /*
   testtree->Branch("TriggersAll1",pss.Trig1,"TrigersAll1[9]/I");
-  //  testtree->Branch("TriggersVar10",pss.Trig2,"TriggersVar10[9]/I");
   testtree->Branch("TriggersVar142",pss.Trig2,"TriggersVar142[9]/I");
 
   testtree->Branch("TriggersVar142Plus10",pss.Trig3,"TriggersVar142Plus10[9]/I");
   testtree->Branch("TriggersVar142Gaus",pss.Trig4,"TriggersVar142Gaus[9]/I");
 
   testtree->Branch("TriggersVar142Lead",pss.Trig5,"TriggersVar142Lead[9]/I");
-  //  testtree->Branch("TriggersVar080",pss.Trig4,"TriggersVar080[9]/I");
-  //  testtree->Branch("TriggersVar20",pss.Trig3,"TriggersVar20[9]/I");
-  //  testtree->Branch("TriggersVar30",pss.Trig4,"TriggersVar30[9]/I");
-  // testtree->Branch("TriggersVar956",pss.Trig4,"TriggersVar956[9]/I");
+  */
+  /*
+    testtree->Branch("TriggersVar10",pss.Trig2,"TriggersVar10[9]/I");
+    testtree->Branch("TriggersVar080",pss.Trig4,"TriggersVar080[9]/I");
+    testtree->Branch("TriggersVar20",pss.Trig3,"TriggersVar20[9]/I");
+    testtree->Branch("TriggersVar30",pss.Trig4,"TriggersVar30[9]/I");
+   testtree->Branch("TriggersVar956",pss.Trig4,"TriggersVar956[9]/I");
+   */
 
   //BS testing Radiation Diagonstics
   testtree->Branch("nPhotonsNormL", &(EventAction::nPhotonsNormL) );
@@ -145,7 +152,8 @@ EventAction::EventAction(FILE* fp0,TFile* tf0, TTree* geotr, Int_t eventNum)
      testtree->Branch("lAvgRadL", &(EventAction::lAvgRadL) );
      testtree->Branch("lAvgNormS", &(EventAction::lAvgNormS) );
      testtree->Branch("lAvgRadS", &(EventAction::lAvgRadS) );
-     */
+    :*/
+
   testtree->Branch("EdeptotL", &(EventAction::EdeptotL) );
   testtree->Branch("EdeptotS", &(EventAction::EdeptotS) );
   testtree->Branch("EdeptotModL", &(EventAction::EdeptotModL) );
@@ -164,8 +172,9 @@ EventAction::EventAction(FILE* fp0,TFile* tf0, TTree* geotr, Int_t eventNum)
   if(didSetupDamage) G4cout<<"ERROR, Could not Create Functions!!"<<G4endl;
   pFile->cd();
 
-  Double_t daySpacing=7;
+//  Double_t daySpacing=7;
   nDaysSimulated=52; //Number of Days with entries, not necessarily x consecutive days;
+  Double_t daySpacing=21;
   TString dumString; dumString.Form("[%i]",nDaysSimulated);
 
   testtree->Branch("nPhotonsRadNewL",nPhotonsRadNewL,"nPhotonsRadNewL[nsaved_traj]"+dumString+"/I");
@@ -344,8 +353,7 @@ void EventAction::BeginOfEventAction(const G4Event* event)
     }
   }
   //End BS Damage Addtions
-
-
+  
   //BS I still worry there's a memory leak on the individual TMatrices, but this should stop for now the failure for multi-event
   pss.MatrixArray.SetOwner();
   pss.MatrixArray.Clear();
@@ -540,8 +548,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 		{
 
 		  Double_t nDaysActual= dayNum[dumNSavedLoop][dumNDays];
-		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, true, 0.005, nDaysActual) ) 
-		  { 
+		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, true, 0.005, nDaysActual) ) { 
 		    nPhotonsRadNewL[dumNSavedLoop][dumNDays]+=1;
 		    zAvgNewL[dumNSavedLoop][dumNDays]+= (Float_t) pss.zdepth;
 
@@ -594,6 +601,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 
 
 	  //	PhotonWavelengthL->Fill(Wave);
+//	  	cosL->Fill(CosTh);
 	}
       }
       //
@@ -777,13 +785,16 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 		for(Int_t dumNDays=0; dumNDays<nDaysSimulated; dumNDays++)
 		{
 		  Double_t nDaysActual=7*dumNDays;
-		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, false, 0.005, nDaysActual) )
+//		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, false, 0.005, nDaysActual) )
+		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, false, 0.015, nDaysActual) )
 		  {
 		    nPhotonsRadNewS[dumNSavedLoop][dumNDays]+=1;
 		    zAvgNewS[dumNSavedLoop][dumNDays]+= (Float_t) pss.zdepth;
 		    if( (*myCollectionS)[jj]->GetIsCerenkov() ) nPhotonsCerenNewS[dumNSavedLoop][dumNDays]+=1;
 		  }
-		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, true, 0.005, nDaysActual, true, Wave) ) 
+		  //BS Made an error here that had it as only .5% in small cells
+//		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, true, 0.005, nDaysActual, true, Wave) ) 
+		  if( EventAction::DidSurviveRad( HitEta, pss.zdepth, CosTh, false, 0.015, nDaysActual, true, Wave) ) 
 		  { 
 		    nPhotonsWaveNewS[dumNSavedLoop][dumNDays]+=1;
 		    zAvgWaveNewS[dumNSavedLoop][dumNDays]+= (Float_t) pss.zdepth;
@@ -822,6 +833,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	    lPhotonsRadS+= (*myCollectionS)[jj]->GetTotalTrackLength();
 	  }
 	  //	  std::cout<<"Small Cell Depth ="<<pss.zdepth<<" and extra Probability to survive ="<<ProbabilitySurviveUpdated<<std::endl;
+//	  	cosS->Fill(CosTh);
 	}
       }
 
@@ -1074,7 +1086,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 
 //BS Damage Additions
 
-Int_t EventAction::CreateNormFunctions(Double_t normEtaL_ /*=2.9*/, Double_t normEtaS_/*=3.7*/)
+Int_t EventAction::CreateNormFunctions(Double_t normEtaL_ /*=2.9*/, Double_t normEtaS_/*=3.5*/)
 {
   if( pEShapeFile==0 ) { G4cout<<"ERROR: YOU HAVE NOT PROVIDED THE HISTOGRAM FILE"<<G4endl; return -1;}
   else
@@ -1113,7 +1125,7 @@ Int_t EventAction::CreateNormFunctions(Double_t normEtaL_ /*=2.9*/, Double_t nor
 }
 
 //Bool_t EventAction::DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Double_t cosThPhoton_, Bool_t isLarge_, Double_t ratDayChange_, Double_t nDays_)
-Bool_t EventAction::DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Double_t cosThPhoton_, Bool_t isLarge_, Double_t ratDayChange_, Double_t nDays_, Bool_t useWavelength_/*=false*/, Double_t wavelength_/*=465*/)
+Bool_t EventAction::DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Double_t cosThPhoton_, Bool_t isLarge_, Double_t ratDayChange_, Double_t nDays_, Bool_t useWavelength_/*=false*/, Double_t wavelength_/*=465*/, Bool_t useAvg_/*=true*/)
 {
   if(cosThPhoton_ == 0) return false; //Prevents division by 0;
   if(nDays_== 0) return true; //Removes ~1/5000 rounding errors
@@ -1123,14 +1135,26 @@ Bool_t EventAction::DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Do
   Double_t fullLength= isLarge_ ? 60. : 45;
   Double_t waveFactor = useWavelength_ ? pFuncWaveDam->Eval(wavelength_) : 1.;
 
+  //Treat all values as identical damage to sepearte out magnitdue later. Note that while the fits are to a pol0 for mean/sigma, a pol1 fits it much better. I'm assuming the error in this is washed away by uncertainty in the damage, but we'll see. I list here the results of the pol1 fits for all variables for posterity
+  //Large Magnitude: -1.1443 + 0.491123*x
+  //Large Mean: 46.1155 - 3.13794*x
+  //Large Sigma: 8.30554
+  //Small Magnitude: -3.85578 + 1.29138*x 
+  //Small Mean: 35.7913 - 2.52334*x
+  //Small Sigma: 9.15984
+  
+  Float_t gausValsConstL[3]={0.28,36.7602,8.30554}; //Magnitude around that of a pol1 fit at eta=2.9, sigma/mean based on pol0 fits
+  Float_t gausValsConstS[3]={0.91,26.3731,9.15984}; //Magnitude around that of a pol1 fit at eta=2.9, sigma/mean based on pol0 fits
+
   if(isLarge_)
   {
     normFactor=pNormFuncL->Eval(ratDayChange_, nDays_);
-    if(nDays_==0) G4cout<<"NDays=0 && normFactor="<<normFactor<<G4endl;
     whichBin= pParamL[0]->FindBin(etaPhoton_);
     for(Int_t dumGausParam=0; dumGausParam<3; dumGausParam++) {  gausParam[dumGausParam]= (*(pParamL[dumGausParam]))[whichBin]; }
     gausParam[0]*=normFactor;
     pDamGaus->SetParameters(gausParam);
+//    if( useAvg_ ) pDamGaus->SetParameters(gausValsConstL);
+
     if(cosThPhoton_ > 0)
     {
       probSurvive=100*TMath::Exp(-1./fabs(cosThPhoton_) * waveFactor * pDamGaus->Integral(0,depthPhoton_) );
@@ -1145,9 +1169,11 @@ Bool_t EventAction::DidSurviveRad(Double_t etaPhoton_, Double_t depthPhoton_, Do
   {
     normFactor=pNormFuncS->Eval(ratDayChange_, nDays_);
     whichBin= pParamS[0]->FindBin(etaPhoton_);
-    for(Int_t dumGausParam=0; dumGausParam<3; dumGausParam++) {  gausParam[dumGausParam]= (*(pParamL[dumGausParam]))[whichBin]; }
+    for(Int_t dumGausParam=0; dumGausParam<3; dumGausParam++) {  gausParam[dumGausParam]= (*(pParamS[dumGausParam]))[whichBin]; }
     gausParam[0]*=normFactor;
     pDamGaus->SetParameters(gausParam);
+
+//    if( useAvg_ ) pDamGaus->SetParameters(gausValsConstS);
     if(cosThPhoton_>0)
     {
       probSurvive=100.*TMath::Exp(-1./fabs(cosThPhoton_) * waveFactor * pDamGaus->Integral(0,depthPhoton_) );

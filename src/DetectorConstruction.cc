@@ -130,11 +130,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Pb Glass - Photocathode
   G4Material* PbGl0 = man->FindOrBuildMaterial("G4_GLASS_LEAD");
 
-  //BS DELETE
-  //
-  //
-  //
-  //END BS DELETE
+  //BS CHANGE. non-lead glass
+  G4Material* PyrexGl = man->FindOrBuildMaterial("G4_PYREX_GLASS");
+  G4Material* PlateGL= man->FindOrBuildMaterial("G4_GLASS_PLATE");
+
+  // Plexiglass
+  G4Material *Plexi = man->FindOrBuildMaterial("G4_PLEXIGLASS");
+  //G4Material *Glass = man->FindOrBuildMaterial("G4_GLASS_PLATE");
+  G4Material *Plastic = man->FindOrBuildMaterial("G4_POLYETHYLENE");
+
+  //END BS CHANGE
 
   // Pb Glass - Protvino Small Cell
   G4Material* PbgS = new G4Material("PbGlass386", density= 3.86*g/cm3, nel=5);
@@ -158,8 +163,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   PbgL->AddElement(Na,(2.3+correction)*perCent);
   PbgL->AddElement(As,(0.15+correction)*perCent);
 
-  // Plexiglass
-  G4Material *Plexi = man->FindOrBuildMaterial("G4_PLEXIGLASS");
   
 
   // Material Properties Table - LEAD GLASS
@@ -292,7 +295,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   myMPT8->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex8, nEntries);
   //myMPT8->AddConstProperty("RINDEX",1.0);
   Plexi->SetMaterialPropertiesTable(myMPT8);
+  //BS CHANGE
   G4double CookieLength=0.0*mm;
+//  G4double CookieLength=5.0*mm;
+//  G4double CookieLength=1.0*cm;
+//  G4double CookieLength=6.0*mm;
   
   // Dimensions
   fWorldLength= 1500.*cm; // world length
@@ -404,7 +411,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     CellWidthL/2-Alwidth,
     CellWidthL/2-Alwidth,
     CellLengthL/2-Alwidth+PhotoCLength+CookieLength/2);
+//BS CHANGE
   logicAirCellL = new G4LogicalVolume(airgapCellL,CellMaterL,"logicAirCellL");
+//  logicAirCellL = new G4LogicalVolume(airgapCellL,Air,"logicAirCellL");
+//END BS CHANGE
   physiAirCellL= new G4PVPlacement(0,
       positionAlCellL,
       logicAirCellL,
@@ -416,7 +426,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     CellWidthS/2-Alwidth,
     CellWidthS/2-Alwidth,
     CellLengthS/2-Alwidth+PhotoCLength+CookieLength/2);
+//BS CHANGE
   logicAirCellS = new G4LogicalVolume(airgapCellS,CellMaterS,"logicAirCellS");
+//  logicAirCellS = new G4LogicalVolume(airgapCellS,Air,"logicAirCellS");
+//END BS CHANGE
   physiAirCellS= new G4PVPlacement(0,
       positionAlCellS,
       logicAirCellS,
@@ -475,6 +488,62 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
       false,
       0);
 
+  /*
+  // Cookie (air tube volume)
+  G4ThreeVector positionCookieL = G4ThreeVector(0,0,CellLengthL/2-AlAirgap-PhotoCLength);
+  solidCookieL = new G4Tubs("solidCookieL",0.,PhotoCRadiusL,CookieLength/2,0,2*3.1415926);
+  //BS CHANGE
+//  logicCookieL = new G4LogicalVolume(solidCookieL,Air,"logicCookieL",0,0,0);
+  logicCookieL = new G4LogicalVolume(solidCookieL,Plexi,"logicCookieL",0,0,0);
+  //END BS CHANGE
+  physiCookieL = new G4PVPlacement(0,
+    positionCookieL,
+    logicCookieL,
+    "physiCookieL",
+    logicAirCellL,
+    false,
+    0);
+  G4ThreeVector positionCookieS = G4ThreeVector(0,0,CellLengthS/2-AlAirgap-PhotoCLength);
+  solidCookieS = new G4Tubs("solidCookieS",0.,PhotoCRadiusS,CookieLength/2,0,2*3.1415926);
+  //BS CHANGE
+//  logicCookieS = new G4LogicalVolume(solidCookieS,Air,"logicCookieS",0,0,0);
+  logicCookieS = new G4LogicalVolume(solidCookieS,Plexi,"logicCookieS",0,0,0);
+  //END BS CHANGE
+  physiCookieS = new G4PVPlacement(0,
+    positionCookieS,
+    logicCookieS,
+    "physiCookieS",
+    logicAirCellS,
+    false,
+    0);
+  G4cout << "Cookie built" << G4endl;
+
+  // Wrapper
+  G4double wrapperWidth = 1*mm;
+  G4ThreeVector positionWrapperL = G4ThreeVector(0,0,
+    CellLengthL/2-AlAirgap);
+  solidWrapperL = new G4Tubs("solidWrapperL",PhotoCRadiusL,PhotoCRadiusL+wrapperWidth,CookieLength/2+PhotoCLength,0,2*3.1415926);
+  logicWrapperL = new G4LogicalVolume(solidWrapperL,Plastic,"logicWrapperL",0,0,0);
+  physiWrapperL = new G4PVPlacement(0,
+    positionWrapperL,
+    logicWrapperL,
+    "physiWrapperL",
+    logicAirCellL,
+    false,
+    0);
+  G4ThreeVector positionWrapperS = G4ThreeVector(0,0,
+    CellLengthS/2-AlAirgap);
+  solidWrapperS = new G4Tubs("solidWrapperS",PhotoCRadiusS,PhotoCRadiusS+wrapperWidth,CookieLength/2+PhotoCLength,0,2*3.1415926);
+  logicWrapperS = new G4LogicalVolume(solidWrapperS,Plastic,"logicWrapperS",0,0,0);
+  physiWrapperS = new G4PVPlacement(0,
+    positionWrapperS,
+    logicWrapperS,
+    "physiWrapperS",
+    logicAirCellS,
+    false,
+    0);
+  G4cout << "Wrapper built" << G4endl;
+  */
 
 
   // Cell parameterisation

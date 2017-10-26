@@ -78,10 +78,13 @@ StackingAction::ClassifyNewTrack(const G4Track * aTrack)
 {
   if(aTrack->GetParentID()==0)
   {
-    TrackInformation* trackInfo = new TrackInformation(aTrack);
-    trackInfo->SetTrackingStatus(1);
-    G4Track* theTrack = (G4Track*)aTrack;
-    theTrack->SetUserInformation(trackInfo);
+    if( ! (aTrack->GetUserInformation() ))
+    {
+      TrackInformation* trackInfo = new TrackInformation(aTrack);
+      trackInfo->SetTrackingStatus(1);
+      G4Track* theTrack = (G4Track*)aTrack;
+      theTrack->SetUserInformation(trackInfo);
+    }
     return fUrgent; //Primary particles always put into UrgentStack
   }
   if(aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
@@ -106,57 +109,57 @@ StackingAction::ClassifyNewTrack(const G4Track * aTrack)
       }
     }
 
-   
+
   }
 
-/*
+  /*
   //Depending on generation cuts, store or don't store info in coordtr
   static G4int IDbound = 1;
   G4int  generation = aTrack->GetParentID();
   if(generation<=IDbound) 
   {
-    G4ThreeVector decayMomentum = aTrack->GetMomentum();
-    G4ThreeVector decayPosition = aTrack->GetPosition();
-    G4double decayEnergy = aTrack->GetTotalEnergy();
-    G4double kinEnergy = aTrack->GetKineticEnergy();
-    G4double posx = decayPosition.getX()/cm;
-    G4double posy = decayPosition.getY()/cm;
-    G4double posz = decayPosition.getZ()/cm;
-    G4double px = decayMomentum.getX()/GeV;
-    G4double py = decayMomentum.getY()/GeV;
-    G4double pz = decayMomentum.getZ()/GeV;
-    G4String decayName = aTrack->GetParticleDefinition()->GetParticleName();
-    G4String decayType = aTrack->GetParticleDefinition()->GetParticleType(); G4String volName = (aTrack->GetVolume()==NULL)? "nil":aTrack->GetVolume()->GetName();
-    //G4String matName = (aTrack->GetMaterial()==NULL)? "nil":aTrack->GetMaterial()->GetName();
-    G4int track_id = aTrack->GetTrackID();
-    G4double zdist = fabs(posx+cellgeo->GetZdist());
-    G4double xmap = zdist*98.6*px/(pz*98.77)+posx;
-    G4double ymap = zdist*98.6*py/(pz*98.77)+posy;
-    px_ = (float) px; //BS, origionally divided by 1000 to make it GeV like Energy
-    py_ = (float) py;
-    pz_ = (float) pz;
-    posx_ = (float) posx; // in cm, particle shoots out at -700 in z
-    posy_ = (float) posy;
-    posz_ = (float) posz;
+  G4ThreeVector decayMomentum = aTrack->GetMomentum();
+  G4ThreeVector decayPosition = aTrack->GetPosition();
+  G4double decayEnergy = aTrack->GetTotalEnergy();
+  G4double kinEnergy = aTrack->GetKineticEnergy();
+  G4double posx = decayPosition.getX()/cm;
+  G4double posy = decayPosition.getY()/cm;
+  G4double posz = decayPosition.getZ()/cm;
+  G4double px = decayMomentum.getX()/GeV;
+  G4double py = decayMomentum.getY()/GeV;
+  G4double pz = decayMomentum.getZ()/GeV;
+  G4String decayName = aTrack->GetParticleDefinition()->GetParticleName();
+  G4String decayType = aTrack->GetParticleDefinition()->GetParticleType(); G4String volName = (aTrack->GetVolume()==NULL)? "nil":aTrack->GetVolume()->GetName();
+  //G4String matName = (aTrack->GetMaterial()==NULL)? "nil":aTrack->GetMaterial()->GetName();
+  G4int track_id = aTrack->GetTrackID();
+  G4double zdist = fabs(posx+cellgeo->GetZdist());
+  G4double xmap = zdist*98.6*px/(pz*98.77)+posx;
+  G4double ymap = zdist*98.6*py/(pz*98.77)+posy;
+  px_ = (float) px; //BS, origionally divided by 1000 to make it GeV like Energy
+  py_ = (float) py;
+  pz_ = (float) pz;
+  posx_ = (float) posx; // in cm, particle shoots out at -700 in z
+  posy_ = (float) posy;
+  posz_ = (float) posz;
 
-    // read second generation decay modes
-    if(aTrack->GetParentID()==1 && !strcmp(decayType,"meson")) IDbound++;
+  // read second generation decay modes
+  if(aTrack->GetParentID()==1 && !strcmp(decayType,"meson")) IDbound++;
 
-    // fill tree
-    strcpy(name_,decayName.data());
-    strcpy(volume_,volName.data());
-    //strcpy(material_,matName.data());
-    generation_=(int) generation;
-    energy_=(float) decayEnergy/GeV;
-    kinetic_energy_= (float) kinEnergy/GeV;
-    mapx_=xmap;
-    mapy_=ymap;
-    track_id_ = (int) track_id;
-    eta_ = -log(tan(.5 * acos(pz_ / ( sqrt( pow(px_,2) + pow(py_,2) + pow(pz_,2))))));
-    phi_ = atan2(py_,px_);
-    pt_=sqrt( pow(px_,2) + pow(py_,2) );
+  // fill tree
+  strcpy(name_,decayName.data());
+  strcpy(volume_,volName.data());
+  //strcpy(material_,matName.data());
+  generation_=(int) generation;
+  energy_=(float) decayEnergy/GeV;
+  kinetic_energy_= (float) kinEnergy/GeV;
+  mapx_=xmap;
+  mapy_=ymap;
+  track_id_ = (int) track_id;
+  eta_ = -log(tan(.5 * acos(pz_ / ( sqrt( pow(px_,2) + pow(py_,2) + pow(pz_,2))))));
+  phi_ = atan2(py_,px_);
+  pt_=sqrt( pow(px_,2) + pow(py_,2) );
 
-    coordtr->Fill();
+  coordtr->Fill();
   };
 
 */

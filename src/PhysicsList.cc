@@ -162,7 +162,7 @@ void PhysicsList::ConstructProcess()
   ConstructGeneral();
   ConstructEM();
   //BS Comment out ConstructOp line to get rid of optical photon processes and speed up greatly	
-  ConstructOp();
+//  ConstructOp();
   AddStepMax();
 }
 

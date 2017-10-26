@@ -16,15 +16,19 @@ class CellGeo
     G4int GetCol(G4int copyNo, G4int det);
     G4double GetZdist() { return 31.1; }
     //BS. Origional has no arguments
-    void SetGains(G4String txtString="", G4String gainString="", G4String corrString="");
+//    void SetGains(G4String txtString="", G4String gainString="", G4String corrString="");
+    void SetGains(G4String txtString="", G4String gainString="", G4String corrString="", G4String bitString="");
     G4float GetGain(G4int nstb, G4int row, G4int col);
     G4float GetCorr(G4int nstb, G4int row, G4int col);
+
+    G4float GetBitShift(G4int nstb, G4int row, G4int col);
   
   private:
     G4int coordL[1000][3];
     G4int coordS[1000][3];
     G4float gain[1000][4];
     G4float corr[1000][4];
+    G4int bit[1000][4];
 };
 
 extern CellGeo * cellgeo;

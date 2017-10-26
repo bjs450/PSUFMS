@@ -220,6 +220,9 @@ G4cout<<"G4UI_USE IS DEFINED"<<G4endl;
 
 // ( (CellParameterisation*) (detector->CellParamL) )->CellEtaL->Write();
 
+//  evact->cosS->Write();
+//  evact->cosL->Write();
+
   //fclose(fp);
   delete runManager;
   pFile->Close();

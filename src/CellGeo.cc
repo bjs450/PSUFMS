@@ -1,5 +1,6 @@
 #include "CellGeo.hh"
 #include "G4FileUtilities.hh"
+#include "TMath.h"
 
 CellGeo * cellgeo;
 
@@ -16,7 +17,7 @@ CellGeo::CellGeo()
 CellGeo::~CellGeo()
 {}
 
-void CellGeo::SetCoord
+  void CellGeo::SetCoord
 (G4int copyNo, G4int nstb, G4int row, G4int col)
 {
   if(nstb<3)
@@ -55,12 +56,16 @@ G4int CellGeo::GetCol(G4int copyNo, G4int det)
   else return coordS[copyNo][2];
 }
 
-void CellGeo::SetGains(G4String txtString, G4String gainString, G4String corrString)
+void CellGeo::SetGains(G4String txtString, G4String gainString, G4String corrString, G4String bitString)
 {
   G4FileUtilities * fu = new G4FileUtilities();
   G4String fmstxt = fu->GetEnv("FMSTXT");
   G4String fmsgain = fu->GetEnv("FMSGAIN");
   G4String fmscorr = fu->GetEnv("FMSCORR");
+
+  char* pTest=getenv("FMSBIT"); //Making compabible with older versions. If there is no enviromental variable for FMSBIT then returns null pointer
+  G4String fmsbit = pTest==NULL ? "" : fu->GetEnv("FMSBIT");
+  if(bitString!="") fmsbit= bitString;
 
   if(txtString!="")  fmstxt = txtString; 
   if(gainString!="") fmsgain = gainString;
@@ -68,6 +73,8 @@ void CellGeo::SetGains(G4String txtString, G4String gainString, G4String corrStr
 
   G4String fmsgainfile = fmstxt+"/"+fmsgain;
   G4String fmscorrfile = fmstxt+"/"+fmscorr;
+
+  G4String fmsbitfile = fmstxt+"/"+fmsbit;
 
   char str[100];
   G4int dev,nn,tt;
@@ -85,7 +92,7 @@ void CellGeo::SetGains(G4String txtString, G4String gainString, G4String corrStr
     sscanf(str,"%d %d %d %f",&dev,&nn,&tt,&gg);
     if(dev==2) gain[tt-1][nn-1] = gg;
   }
-    
+
   FILE * corrfile;
   corrfile = fopen(fmscorrfile,"r");
   if(corrfile == NULL)
@@ -97,6 +104,40 @@ void CellGeo::SetGains(G4String txtString, G4String gainString, G4String corrStr
   {
     sscanf(str,"%d %d %d %f",&dev,&nn,&tt,&gg);
     if(dev==2) corr[tt-1][nn-1] = gg;
+  }
+
+  //If there is no bitfile, set bitshits all =0 (Which means no bitshift)
+  if(fmsbit=="")
+  {
+    for(int iCell=0; iCell<1000; iCell++)
+    {
+      for(int iNSTB0=0; iNSTB0<3; iNSTB0++)
+      {
+	bit[iCell][iNSTB0]=0;
+      }
+    }
+  } //end if(fmsbit=="")
+  else
+  {
+
+    FILE * bitfile;
+    bitfile = fopen(fmsbitfile,"r");
+
+    while(fgets(str,sizeof(str),bitfile))
+    {
+      sscanf(str,"%d %d %d %f",&dev,&nn,&tt,&gg);
+      if(dev==2)
+      {
+	if( gg>=0)
+	{
+	  bit[tt-1][nn-1] = gg==128 ? 0 : TMath::Log2(gg+1);
+	}
+	else 
+	{
+	  bit[tt-1][nn-1] = -1*TMath::Log2(-1*gg+1);
+	}
+      }
+    }
   }
 }
 
@@ -114,4 +155,12 @@ G4float CellGeo::GetCorr(G4int nstb, G4int row, G4int col)
   if(nstb<3) fac=17;
   else fac=12;
   return corr[(col+row*fac+1)-1][nstb-1];
+}
+
+G4float CellGeo::GetBitShift(G4int nstb, G4int row, G4int col)
+{
+  G4int fac;
+  if(nstb<3) fac=17;
+  else fac=12;
+  return bit[(col+row*fac+1)-1][nstb-1];
 }

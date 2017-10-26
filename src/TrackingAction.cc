@@ -8,6 +8,8 @@
 #include <vector>
 #include <iostream>
 
+#include <algorithm> 
+
 TrackingAction::TrackingAction()
 {
   startphotonZ = new TH1D("startphotonZ", "Starting Position of Photons",60, -30, 30);
@@ -20,22 +22,26 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack)
 
   if(!trackInfo) 
   {
-        G4cout<<"Pre Trackinfo returned zero "<<G4endl;
+    G4cout<<"Pre Trackinfo returned zero "<<G4endl;
     fpTrackingManager->SetStoreTrajectory(false); 
   }
   else
   {
     if(trackInfo->GetTrackingStatus() > 0)
     {
-      (trackInfo->particle_ances).push_back(aTrack->GetTrackID());
-      fpTrackingManager->SetStoreTrajectory(true);
-      fpTrackingManager->SetTrajectory(new Trajectory(aTrack));
-      trackInfo->SetSourceTrackInformation(aTrack);
-      //      trackInfo->Print(); //Only prints for certain particles, see TrackInformation.cc for list
+      if(std::find(trackInfo->particle_ances.begin(),trackInfo->particle_ances.end(), aTrack->GetTrackID() ) == trackInfo->particle_ances.end() )
+      {
+	(trackInfo->particle_ances).push_back(aTrack->GetTrackID());
+	fpTrackingManager->SetStoreTrajectory(true);
+	fpTrackingManager->SetTrajectory(new Trajectory(aTrack));
+	trackInfo->SetSourceTrackInformation(aTrack);
+	//      trackInfo->Print(); //Only prints for certain particles, see TrackInformation.cc for list
+      }
+
     }
     else
     { 
-//      G4cout<<"Pre Tracking (false) "<<G4endl;
+      //      G4cout<<"Pre Tracking (false) "<<G4endl;
       fpTrackingManager->SetStoreTrajectory(false); }
   };
 
@@ -50,8 +56,6 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack)
   if( aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhoton() )
   {
     startphotonZ->Fill( (aTrack->GetVertexPosition()).z()/cm );
-//    G4cout<<"STARTING Z Position is" << (aTrack->GetVertexPosition()).z()<<G4endl;
- //   G4cout<<"ENDING Z Position is" <<aTrack->GetPosition().z()<<G4endl;
   }
 
   if (info) 
@@ -73,6 +77,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack)
       TrackInformation* infoNew = new TrackInformation(info);
 
       ////////Turn secondary tracking on only if daughter of primary uncharged meson. 
+      //BS TESTING
       if(nSeco>0 && !( aTrack->GetParticleDefinition()->GetParticleType().compareTo("meson") ) && aTrack->GetParentID()==0 && aTrack->GetParticleDefinition()->GetPDGCharge()==0)
       {
 	infoNew->SetTrackingStatus(1);
@@ -83,11 +88,11 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack)
       }
       //////////////////////////////////
 
-	if(info->GetTrackingStatus()==1){
-//	   (infoNew->particle_ances).push_back(aTrack->GetTrackID());
-//	   (infoNew->particle_ances).push_back( (*secondaries)[i]->GetTrackID() );
-//	   G4cout<<"PUSHING BACK"<<(*secondaries)[i]->GetTrackID()<<G4endl;
-	}
+      if(info->GetTrackingStatus()==1){
+	//	   (infoNew->particle_ances).push_back(aTrack->GetTrackID());
+	//	   (infoNew->particle_ances).push_back( (*secondaries)[i]->GetTrackID() );
+	//	   G4cout<<"PUSHING BACK"<<(*secondaries)[i]->GetTrackID()<<G4endl;
+      }
 
       //BS See Steeping action for description of what this is used for/why needed
       infoNew->SetHasCoordinates( info->GetHasCoordinates() );

@@ -81,14 +81,15 @@ PostSim::PostSim()
 
 
   ///////////
-  //SetGains(FMSTXT, FMSGAIN, FMSCORR)
+  //SetGains(FMSTXT, FMSGAIN, FMSCORR,FMSBIT)
   geo1.SetGains("/home/branden/TriggerTesting","","FmsCorrAll1.txt");
   //  geo2.SetGains("/home/branden/TriggerTesting","","FmsCorrVar10Percent.txt");
-  geo2.SetGains("/home/branden/TriggerTesting","","FmsCorrQ142.txt");
+  geo2.SetGains("/home/branden/TriggerTesting","","FmsCorrAll1.txt");
   //  geo3.SetGains("/home/branden/TriggerTesting","","FmsCorrVar20Percent.txt");
   //  geo4.SetGains("/home/branden/TriggerTesting","","FmsCorrVar30Percent.txt");
   //  geo4.SetGains("/home/branden/TriggerTesting","","FmsCorr956.txt");
-  geo3.SetGains("/home/branden/TriggerTesting","","FmsCorrQ142.txt");
+//  geo3.SetGains("/home/branden/TriggerTesting","","FmsCorrQ142.txt");
+  geo3.SetGains("/home/branden/TriggerTesting","","FmsCorrAll1.txt");
   //  geo4.SetGains("/home/branden/TriggerTesting","","FmsCorrQ142.txt");
   //  geo4.SetGains("/home/branden/TriggerTesting","","FmsCorrD82a.txt");
 
@@ -351,7 +352,6 @@ void PostSim::Digitise(Int_t nn, int k)
       Float_t tempRadHits = (*(radhits[nn]))(r,c);
       radhitstot+= tempRadHits;
 
-
       if(hits>0 || edep>0)
       {
 	gain_ = cellgeo->GetGain(nn+1,r,c);
@@ -370,16 +370,17 @@ void PostSim::Digitise(Int_t nn, int k)
 	corr3=geo3.GetCorr(nn+1,r,c);
 	gaincorr3=gain3*corr3;
 	//BS ADDING RANDOM NUMBER TO GAIN
-	gaincorr3*=gainRandVar[nn][r][c];
+//	gaincorr3*=gainRandVar[nn][r][c];
 
 	gain4=geo4.GetGain(nn+1,r,c);
 	corr4=geo4.GetCorr(nn+1,r,c);
 	gaincorr4=gain4*corr4;
-	gaincorr4*=gainGroupVar[nn][r][c];
+//	gaincorr4*=gainGroupVar[nn][r][c];
 
 	gain5=geo5.GetGain(nn+1,r,c);
 	corr5=geo5.GetCorr(nn+1,r,c);
 	gaincorr5=gain5*corr5;
+	/*
 	if(r< (shits[nn]->GetNrows()/2)) //top
 	{
 	  if(nn%2==0) { gaincorr5*=leadClusterGain[0]; } //north
@@ -390,7 +391,7 @@ void PostSim::Digitise(Int_t nn, int k)
 	  if(nn%2==0) { gaincorr5*=leadClusterGain[1]; } //north
 	  else { gaincorr5*=leadClusterGain[3]; } //south
 	}
-
+	*/
 
 
 	if(nn<2)
@@ -429,6 +430,45 @@ void PostSim::Digitise(Int_t nn, int k)
 	adcGeoValue4= (Int_t) ((edep)/(gaincorr4) + 0.5);
 	adcGeoValue5= (Int_t) ((edep)/(gaincorr5) + 0.5);
 	//End BS
+	
+
+	//Setting maximum adc value to 255. NOTE. need to do this for other adc as well
+
+	adcGeoValue1 = adcGeoValue1>4095 ? 4095 : adcGeoValue1;
+	adcGeoValue2 = adcGeoValue2>4095 ? 4095 : adcGeoValue2;
+	adcGeoValue3 = adcGeoValue3>4095 ? 4095 : adcGeoValue3;
+	adcGeoValue4 = adcGeoValue4>4095 ? 4095 : adcGeoValue4;
+	adcGeoValue5 = adcGeoValue5>4095 ? 4095 : adcGeoValue5;
+
+	Int_t origADC3=adcGeoValue3;
+	Int_t origADC1=adcGeoValue1;
+	// BS Oct 25
+	// Adding in bitshift and subtraction of 1 (Run 15)
+	// Right Now, assumes bitshift is positive
+	Bool_t subtractOne=true;
+	Int_t bitShift2=geo2.GetBitShift(nn+1,r,c);
+	Int_t masker2 = 4095-pow(2,bitShift2)+1;
+
+	adcGeoValue2= adcGeoValue2&masker2; //just bitshift
+	adcGeoValue3= adcGeoValue3&masker2; //bitshift + subtraction
+	if(adcGeoValue3>0 && subtractOne) adcGeoValue3 -= pow(2,bitShift2); //bitshift + subtraction
+
+	/*
+	if(origADC1>0 && k==0)
+	{
+	  std::cout<<"BITSHIFT="<<bitShift2<<std::endl;
+	  std::cout<<"origADC1="<<origADC1<<std::endl;
+	  std::cout<<"Final ADC2="<<adcGeoValue2<<std::endl;
+	  std::cout<<"Final ADC3="<<adcGeoValue3<<std::endl;
+	}
+	*/
+
+
+	Int_t bitShift5=geo4.GetBitShift(nn+1,r,c);
+	Int_t masker5 = 4095-pow(2,bitShift5)+1;
+	adcGeoValue5= adcGeoValue5&masker5;
+	if(adcGeoValue5>0 && subtractOne) adcGeoValue5 -= pow(2,bitShift5); //bitshift + subtraction
+	//
 
 	(*(sadc[nn]))(r,c) = adc;
 	(*(sfadc[nn]))(r,c)= fadc;
@@ -447,9 +487,9 @@ void PostSim::Digitise(Int_t nn, int k)
 	edeptot+= edep;
 	efittot+= fit_edep;
 	eradtot+= fitRadEdep;
-      };
-    };
-  };
+      }
+    }
+  }
 
   if(nn == 3)
   {
@@ -504,15 +544,27 @@ void PostSim::Digitise(Int_t nn, int k)
 
       QT->decodeQT(nqtGeo1,QtGeo1,0);
       QT->TriggersTest();
-      for(Int_t qtdum1=0; qtdum1<9; qtdum1++) Trig1[qtdum1] = (Int_t) (QT->TriggerPass)[qtdum1];
+      for(Int_t qtdum1=0; qtdum1<9; qtdum1++) 
+      {
+	Trig1[qtdum1] = (Int_t) (QT->TriggerPass)[qtdum1];
+//	std::cout<<"QT 1 Trig["<<qtdum1<<"]="<<Trig1[qtdum1]<<" AND TriggerPass="<<(QT->TriggerPass)[qtdum1]<<std::endl;
+      }
 
       QT->decodeQT(nqtGeo2,QtGeo2,0);
       QT->TriggersTest();
-      for(Int_t qtdum2=0; qtdum2<9; qtdum2++) Trig2[qtdum2] = (Int_t) (QT->TriggerPass)[qtdum2];
+      for(Int_t qtdum2=0; qtdum2<9; qtdum2++)
+      {
+	Trig2[qtdum2] = (Int_t) (QT->TriggerPass)[qtdum2];
+//	std::cout<<"QT 2 Trig["<<qtdum2<<"]="<<Trig2[qtdum2]<<" AND TriggerPass="<<(QT->TriggerPass)[qtdum2]<<std::endl;
+      }
 
       QT->decodeQT(nqtGeo3,QtGeo3,0);
       QT->TriggersTest();
-      for(Int_t qtdum3=0; qtdum3<9; qtdum3++) Trig3[qtdum3] = (Int_t) (QT->TriggerPass)[qtdum3];
+      for(Int_t qtdum3=0; qtdum3<9; qtdum3++)
+      {
+	Trig3[qtdum3] = (Int_t) (QT->TriggerPass)[qtdum3];
+//	std::cout<<"QT 3 Trig["<<qtdum3<<"]="<<Trig3[qtdum3]<<" AND TriggerPass="<<(QT->TriggerPass)[qtdum3]<<std::endl;
+      }
 
       QT->decodeQT(nqtGeo4,QtGeo4,0);
       QT->TriggersTest();
